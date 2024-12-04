@@ -6,14 +6,15 @@ pub fn part_one(input: &str) -> Option<u32> {
 
     let re = Regex::new(pattern).unwrap();
 
-    let matches: Vec<String> = re.find_iter(&input)
-                                .map(|mat| {
-                                        let match_str = mat.as_str();
-                                        match_str.to_string()
-                                }).collect();
+    let matches: Vec<String> = re
+        .find_iter(input)
+        .map(|mat| {
+            let match_str = mat.as_str();
+            match_str.to_string()
+        })
+        .collect();
 
-
-    return Some(process_list(&matches));
+    Some(process_list(&matches))
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
@@ -21,22 +22,23 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     let re = Regex::new(pattern).unwrap();
 
-    let matches: Vec<String> = re.find_iter(&input)
-                                .map(|mat| {
-                                        let match_str = mat.as_str();
-                                        match_str.to_string()
-                                }).collect();
+    let matches: Vec<String> = re
+        .find_iter(input)
+        .map(|mat| {
+            let match_str = mat.as_str();
+            match_str.to_string()
+        })
+        .collect();
 
-
-    return Some(process_list(&matches));
+    Some(process_list(&matches))
 }
 
 fn process_list(commands: &Vec<String>) -> u32 {
     let mut result: u32 = 0;
     let mut execute = true;
-    for item in commands{
+    for item in commands {
         if item.contains("mul(") && execute {
-            result += calculate_mul(item[4..item.len()-1].to_string());
+            result += calculate_mul(item[4..item.len() - 1].to_string());
         }
 
         if item.contains("do(") {
@@ -46,14 +48,16 @@ fn process_list(commands: &Vec<String>) -> u32 {
         if item.contains("don't(") {
             execute = false
         }
-
     }
-    return result
+    result
 }
 
 fn calculate_mul(input_text: String) -> u32 {
-    let nums: Vec<u32> = input_text.split(",").filter_map(|item| item.parse::<u32>().ok()).collect();
-    return nums[0] * nums[1];
+    let nums: Vec<u32> = input_text
+        .split(",")
+        .filter_map(|item| item.parse::<u32>().ok())
+        .collect();
+    nums[0] * nums[1]
 }
 
 #[cfg(test)]

@@ -4,12 +4,12 @@ advent_of_code::solution!(1);
 
 pub fn part_one(input: &str) -> Option<u32> {
     let mut rdr = csv::ReaderBuilder::new()
-                                    .delimiter(b';')
-                                    .has_headers(false)
-                                    .from_reader(input.as_bytes());
+        .delimiter(b';')
+        .has_headers(false)
+        .from_reader(input.as_bytes());
 
-    let mut list1:Vec<u32> = Vec::new();
-    let mut list2:Vec<u32> = Vec::new();
+    let mut list1: Vec<u32> = Vec::new();
+    let mut list2: Vec<u32> = Vec::new();
 
     let mut occurance_count: HashMap<u32, u32> = HashMap::new();
 
@@ -26,7 +26,7 @@ pub fn part_one(input: &str) -> Option<u32> {
             }
             Err(err) => {
                 println!("error reading CSV: {}", err);
-                return None
+                return None;
             }
         }
     }
@@ -38,17 +38,17 @@ pub fn part_one(input: &str) -> Option<u32> {
     assert_eq!(list1.len(), distances.len());
     let final_distance = get_sum_distances(&distances);
 
-    return Some(final_distance);
+    Some(final_distance)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
     let mut rdr = csv::ReaderBuilder::new()
-                                    .delimiter(b';')
-                                    .has_headers(false)
-                                    .from_reader(input.as_bytes());
+        .delimiter(b';')
+        .has_headers(false)
+        .from_reader(input.as_bytes());
 
-    let mut list1:Vec<u32> = Vec::new();
-    let mut list2:Vec<u32> = Vec::new();
+    let mut list1: Vec<u32> = Vec::new();
+    let mut list2: Vec<u32> = Vec::new();
 
     let mut occurance_count: HashMap<u32, u32> = HashMap::new();
 
@@ -65,7 +65,7 @@ pub fn part_two(input: &str) -> Option<u32> {
             }
             Err(err) => {
                 println!("error reading CSV: {}", err);
-                return None
+                return None;
             }
         }
     }
@@ -78,35 +78,34 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     let similarity = calc_simularity(&list1, &occurance_count);
 
-
-    return Some(similarity);
+    Some(similarity)
 }
 
-pub fn find_distance(list1: &Vec<u32>, list2: &Vec<u32>) -> Vec<u32> {
+pub fn find_distance(list1: &[u32], list2: &[u32]) -> Vec<u32> {
     let mut result = Vec::<u32>::new();
 
     for index in 0..list1.len() {
         result.push(u32::abs_diff(list1[index], list2[index]));
     }
-    return result
+    result
 }
 
-pub fn get_sum_distances(distance_list: &Vec<u32>) -> u32 {
+pub fn get_sum_distances(distance_list: &[u32]) -> u32 {
     let mut distance = 0;
     for item in distance_list {
         distance += item
     }
-    return distance
+    distance
 }
 
-pub fn calc_simularity(list1: &Vec<u32>, occurance_count: &HashMap<u32, u32>) -> u32{
+pub fn calc_simularity(list1: &[u32], occurance_count: &HashMap<u32, u32>) -> u32 {
     let mut result = 0;
 
     for item in list1 {
         result += item * occurance_count.get(item).unwrap_or(&0);
     }
 
-    return result
+    result
 }
 
 #[cfg(test)]
