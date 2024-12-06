@@ -1,5 +1,8 @@
+use std::collections::{HashSet, VecDeque};
+
 advent_of_code::solution!(6);
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Direction {
     Up,
     Down,
@@ -101,8 +104,103 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+
+    let map: Vec<Vec<char>> = input
+        .lines()
+        .map(|row| row.chars().collect())
+        .collect();
+
+    let location: Option<(usize, usize)> = map.iter().enumerate()
+                                                        .filter_map(|(row_idx, row)|
+                                                            row.iter().position(|&value| value == '^')
+                                                                .map(|col_idx| (row_idx, col_idx))
+                                                        )
+                                                        .next();
+
+    let mut visited = HashSet::new();
+    let mut queue = VecDeque::from(vec![(location.unwrap(), Direction::Up)]);
+
+    while let Some((current_pos, current_dir)) = queue.pop_front() {
+        visited.insert(current_pos);
+        let (next_pos, next_dir) = execute_step(&map, current_pos, current_dir);
+
+        if next_pos == current_pos && next_dir == current_dir {
+            break;
+        }
+
+        queue.push_back((next_pos, next_dir));
+    }
+
+
+    let infinite_maps: Vec<Vec<Vec<char>>>= visited
+        .into_iter()
+        .filter_map(|position| {
+            let mut new_map = map.clone();
+            if new_map[position.0][position.1] == '.' {
+                new_map[position.0][position.1] = '#';
+
+                if is_infinite(&new_map, location.unwrap()) {
+                    Some(new_map)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    let return_count = infinite_maps.len() as u32;
+    Some(return_count)
 }
+
+pub fn is_infinite(map: &Vec<Vec<char>>, (row, col): (usize, usize)) -> bool {
+    let mut visited_states = HashSet::new();
+    let mut current_pos = (row, col);
+    let mut current_dir = Direction::Up;
+
+    for _ in 0..8000 {
+        let current_state = (current_pos, current_dir.clone());
+
+        if !visited_states.insert(current_state.clone()) {
+            return true; // Cycle detected
+        }
+
+        let (next_pos, next_dir) = execute_step(map, current_pos, current_dir);
+
+        if next_pos == current_pos && next_dir == current_dir {
+            return false;
+        }
+
+        current_pos = next_pos;
+        current_dir = next_dir;
+    }
+    false
+}
+
+pub fn execute_step(map: &Vec<Vec<char>>, (row, col): (usize, usize), direction: Direction) -> ((usize,usize), Direction){
+
+    let (dx, dy) = match direction {
+        Direction::Up => (-1, 0),
+        Direction::Down => (1, 0),
+        Direction::Left => (0, -1),
+        Direction::Right => (0, 1),
+    };
+
+    let new_pos = ((row as isize + dx) as usize, (col as isize + dy) as usize);
+
+    if new_pos.0 != usize::MAX && new_pos.0 < map.len() && new_pos.1 != usize::MAX && new_pos.1 < map[0].len() {
+
+        if map[new_pos.0][new_pos.1] == '#' {
+            let mut new_direction = direction.clone();
+            new_direction.next_direction();
+            return ((row,col), new_direction);
+        }
+
+        return (new_pos, direction.clone());
+    }
+    ((row, col), direction.clone())
+    }
 
 #[cfg(test)]
 mod tests {
@@ -117,6 +215,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(6));
     }
 }
