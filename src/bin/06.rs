@@ -158,7 +158,7 @@ pub fn is_infinite(map: &[Vec<char>], (row, col): (usize, usize)) -> bool {
     let mut current_dir = Direction::Up;
 
     for _ in 0..8000 {
-        let current_state = (current_pos, current_dir);
+        let current_state: ((usize, usize), Direction) = (current_pos, current_dir);
 
         if !visited_states.insert(current_state) {
             return true; // Cycle detected
