@@ -98,9 +98,6 @@ pub fn part_two(input: &str) -> Option<u64> {
             for item in disk_map.iter_mut().take(i + 1).skip(start) {
                 *item = u32::MAX;
             }
-            // for k in start..=i {
-            //     disk_map[k] = u32::MAX;
-            // }
 
             for k in 0..block_length {
                 disk_map[space_start + k] = value;
