@@ -32,10 +32,6 @@ pub fn part_one(input: &str) -> Option<u32> {
                 .map(|col_idx| (row_idx, col_idx))
         })
         .next();
-    match location {
-        Some((row, col)) => println!("Found starting point at pos ({},{})", row, col),
-        None => println!("not found"),
-    }
 
     let mut current_direction = Direction::Up;
     let mut current_position: (usize, usize) = location.unwrap();

@@ -66,45 +66,72 @@ pub fn part_two(input: &str) -> Option<u64> {
         })
         .collect();
 
-    let mut i = disk_map.len();
-    while i > 0 {
-        i -= 1;
-
+    let mut available_spaces = Vec::new();
+    let mut i = 0;
+    while i < disk_map.len() {
         if disk_map[i] == u32::MAX {
+            let start = i;
+            while i < disk_map.len() && disk_map[i] == u32::MAX {
+                i += 1;
+            }
+            available_spaces.push((start, i - start));
+        } else {
+            i += 1
+        }
+    }
+    let mut free_spaces = Vec::new();
+    let mut i = 0;
+
+    // Precompute contiguous free spaces
+    while i < disk_map.len() {
+        if disk_map[i] == u32::MAX {
+            let start = i;
+            while i < disk_map.len() && disk_map[i] == u32::MAX {
+                i += 1;
+            }
+            free_spaces.push((start, i - start));
+        } else {
+            i += 1;
+        }
+    }
+
+    let mut block_end = disk_map.len();
+    while block_end > 0 {
+        block_end -= 1;
+
+        if disk_map[block_end] == u32::MAX {
             continue;
         }
 
-        let value = disk_map[i];
-        let mut start = i;
-
-        while start > 0 && disk_map[start - 1] == value {
-            start -= 1;
+        let value = disk_map[block_end];
+        let mut block_start = block_end;
+        while block_start > 0 && disk_map[block_start - 1] == value {
+            block_start -= 1;
         }
-        let block_length = i - start + 1;
+        let block_length = block_end - block_start + 1;
 
         let mut found_space = None;
-        for j in 0..=disk_map.len() - block_length {
-            if j + block_length <= start
-                && disk_map[j..j + block_length]
-                    .iter()
-                    .all(|&ele| ele == u32::MAX)
-            {
-                found_space = Some(j);
+        for (space_idx, &(space_start, space_length)) in free_spaces.iter().enumerate() {
+            if space_length >= block_length && space_start + space_length <= block_start {
+                found_space = Some((space_idx, space_start));
                 break;
             }
         }
 
-        if let Some(space_start) = found_space {
-            for item in disk_map.iter_mut().take(i + 1).skip(start) {
-                *item = u32::MAX;
-            }
-
+        if let Some((space_idx, space_start)) = found_space {
             for k in 0..block_length {
                 disk_map[space_start + k] = value;
+                disk_map[block_start + k] = u32::MAX;
+            }
+
+            let (old_start, old_length) = free_spaces[space_idx];
+            if old_length == block_length {
+                free_spaces.remove(space_idx);
+            } else {
+                free_spaces[space_idx] = (old_start + block_length, old_length - block_length);
             }
         }
-
-        i = start;
+        block_end = block_start;
     }
 
     Some(
